@@ -4,12 +4,12 @@
 #include "Myutil.h"
 
 Player::Player(int _x, int _y, RECT _rect)
-	: posX(_x), posY(_y), oldDirX(0), oldDirY(0), size(8), speed(2), rect({ _rect.left + size / 2, _rect.top + size / 2, _rect.right - size / 2, _rect.bottom - size / 2 })
+	: pos({ _x, _y }), oldDir({ 0, 0 }), size(8), speed(2), rect({ _rect.left + size / 2, _rect.top + size / 2, _rect.right - size / 2, _rect.bottom - size / 2 })
 { }
 
-void Player::AddPath(const Point & newP)
+void Player::AddPath(Point & newP)
 {
-	if (!path.empty() && path.back().X == newP.X && path.back().Y == newP.Y)
+	if (!path.empty() && path.back() == newP)
 		return;
 
 	path.push_back(newP);
@@ -34,7 +34,7 @@ void Player::DrawPlayer(Graphics * graphic)
 
 
 	SolidBrush brush(Color(255, 255, 0, 0));
-	graphic->FillRectangle(&brush, posX - size / 2, posY - size / 2, size, size);
+	graphic->FillRectangle(&brush, pos.X - size / 2, pos.Y - size / 2, size, size);
 
 	int pathSize = path.size();
 
@@ -47,33 +47,52 @@ void Player::DrawPlayer(Graphics * graphic)
 		DrawLine(graphic, path[i], path[i + 1]);
 
 	if (pathSize > 0)
-		DrawLine(graphic, path[path.size() - 1], { posX, posY });
+		DrawLine(graphic, path[path.size() - 1], pos);
 }
 
 void Player::MoveWithSpace(int moveX, int moveY, vector<Point>& p)
 {
+	if (moveX == 0 && moveY == 0) return;
+
 	for (int i = 0; i < speed; ++i)
 	{
-		int nextX = posX + moveX;
-		int nextY = posY + moveY;
+		Point oldPos = pos;
+		Point newPos = pos;
 
-		// 화면 안쪽인지 체크합니다 //
+		Point next = pos + Point(moveX, moveY);
 
-		if (!InRect(nextX, nextY, rect))
-			return;
+		if (!InRect(pos.X, next.Y, rect))
+			next.Y = pos.Y;
 
-		// ------------------------------- //
+		if (!InRect(next.X, pos.Y, rect))
+			next.X = pos.X;
 
-		// 이미 지나온 길인지 체크합니다 //
-		// 마지막 지점과 현재 위치의 길도 체크 필요
-		if (!OnPath(nextX, nextY, path) && !OnLine(nextX, nextY, {posX, posY}, path.back()))
+		if (!OnPath(next, path) && !path.empty() && !OnLine(next, pos, path.back()))
+			newPos = next;
+		else if (!OnPath({ pos.X, next.Y }, path) && !path.empty() && !OnLine({ pos.X, next.Y }, pos, path.back()))
+			newPos.Y = next.Y;
+		else if (!OnPath({ next.X, pos.Y }, path) && !path.empty() && !OnLine({ next.X, pos.Y }, pos, path.back()))
+			newPos.X = next.X;
+
+		if (OnCircuit(newPos, p))
 		{
-			posX = nextX;
-			posY = nextY;
+			pos = newPos;
+   			return;
 		}
-		else return;
 
-		// ----------------------------- //
+		Point newDir = GetDir(newPos - oldPos);
+
+		Point z = Zero();
+
+		if (GetPathSize() == 0)
+			AddPath(oldPos);
+		else if (newDir != z && newDir != oldDir)
+			AddPath(oldPos);
+
+		if (newDir != z)
+			SetOldDir(newDir);
+
+		pos = newPos;
 	}
 }
 
@@ -83,67 +102,15 @@ void Player::MoveWithoutSpace(int moveX, int moveY, vector<Point>& p)
 	{
 		for (int i = 0; i < speed; ++i)
 		{
-			int nextX = posX + moveX;
-			int nextY = posY + moveY;
+			Point next = pos + Point(moveX, moveY);
 
-			if (OnPath(nextX, nextY, p))
-			{
-				posX = nextX;
-				posY = nextY;
-			}
-			else if (OnPath(posX, nextY, p))
-				posY = nextY;
-			else if (OnPath(nextX, posY, p))
-				posX = nextX;
+			if (OnCircuit(next, p))
+				pos = next;
+			else if (OnCircuit(pos.X, next.Y, p))
+				pos.Y = next.Y;
+			else if (OnCircuit(next.X, pos.Y, p))
+				pos.X = next.X;
 			else return;
-		}
-	}
-}
-
-void Player::Move(int moveX, int moveY, vector<Point> &p)
-{
-	if (isSpace)
-	{
-		for (int i = 0; i < speed; ++i)
-		{
-			int nextX = posX + moveX;
-			int nextY = posY + moveY;
-
-			// 화면 안쪽인지 체크합니다 //
-
-			if (!InRect(nextX, nextY, rect))
-				return;
-
-			// ------------------------------- //
-
-			// 이미 지나온 길인지 체크합니다 //
-
-			if (!OnPath(nextX, nextY, path))
-			{
-				posX = nextX;
-				posY = nextY;
-			}
-			else return;
-
-			// ----------------------------- //
-		}
-	}
-	else
-	{
-		if (path.empty())
-		{
-			for (int i = 0; i < speed; ++i)
-			{
-				int nextX = posX + moveX;
-				int nextY = posY + moveY;
-
-				if (OnPath(nextX, nextY, p))
-				{
-					posX = nextX;
-					posY = nextY;
-				}
-				else return;
-			}
 		}
 	}
 }
@@ -156,21 +123,17 @@ void Player::MoveBack()
 
 		Point backP = path.back();
 
-		if (posX == backP.X && posY == backP.Y)
+		if (pos == backP)
 		{
 			path.pop_back();
 			--i;
 			continue;
 		}
 
-		Point backDir = { backP.X - posX, backP.Y - posY };
-
+		Point backDir = backP - pos;
 		Point dir = GetDir(backDir);
 
-		posX += dir.X;
-		posY += dir.Y;
-
-		oldDirX = -dir.X;
-		oldDirY = -dir.Y;
+		pos = pos + dir;
+		oldDir = { -dir.X, -dir.Y };
 	}
 }

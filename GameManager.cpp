@@ -2,8 +2,6 @@
 
 #include "MyUtil.h"
 
-Point ZeroPoint = { 0, 0 };
-
 GameManager::GameManager()
 	:input(new InputManager())
 { }
@@ -43,67 +41,21 @@ void GameManager::Update()
 
 	oldTime = newTime;
 
-	////////////////////////
-	// 플레이어 입력 처리 //
-	////////////////////////
+	//player->SetIsSpace(input->GetKeySpace());
 
-	player->SetIsSpace(input->GetKeySpace());
+	int dirX = input->GetHorizontal();
+	int dirY = input->GetVertical();
+	bool space = input->GetKeySpace();
 
-	// 스페이스바 눌렀을 때
-	if (input->GetKeySpace())
-	{
-		Point oldPos = player->GetPos();
-
-		if (input->GetKeyDown())
-			player->MoveWithSpace(0, 1, opened);
-		if (input->GetKeyUp())
-			player->MoveWithSpace(0, -1, opened);
-		if (input->GetKeyLeft())
-			player->MoveWithSpace(-1, 0, opened);
-		if (input->GetKeyRight())
-			player->MoveWithSpace(1, 0, opened);
-
-		Point newPos = player->GetPos();
-
-		Point newDir = GetDir(newPos - oldPos);
-		Point oldDir = player->GetOldDir();
-		
-		// 처음 닫힌 영역으로 나갈때 path에 추가
-		if (player->GetPathSize() == 0)
-			player->AddPath(oldPos);
-
-		// 새로운 방향이 0 이 아니고 이전 방향과 다르면 path에 추가
-		else if (newDir != ZeroPoint && newDir != oldDir)
-			player->AddPath(oldPos);
-
-		// 새로운 방향이 0, 0 이 아니라면 갱신
-		if(newDir != ZeroPoint)
-			player->SetOldDir(newDir.X, newDir.Y);
-	}
-	// 스페이스바 안눌렀을때
+	if (space)
+		player->MoveWithSpace(dirX, dirY, opened);
 	else
 	{
-		int dirX = 0, dirY = 0;
-
-		if (input->GetKeyDown())
-			dirY = 1;
-		else if (input->GetKeyUp())
-			dirY = -1;
-
-		if (input->GetKeyRight())
-			dirX = 1;
-		else if (input->GetKeyLeft())
-			dirX = -1;
-
 		if (dirX == 0 && dirY == 0)
 			player->MoveBack();
 		else
 			player->MoveWithoutSpace(dirX, dirY, opened);
 	}
-
-	////////////////////////
-	////////////////////////
-	////////////////////////
 }
 
 void GameManager::DrawCover(Graphics * graphic)

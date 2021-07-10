@@ -37,3 +37,27 @@ void InputManager::Update()
 
 	CheckKeyboardInput();
 }
+
+int InputManager::GetHorizontal() const
+{
+	int ret = 0;
+
+	if (is_key_left)
+		ret = -1;
+	else if (is_key_right)
+		ret = 1;
+	
+	return ret;
+}
+
+int InputManager::GetVertical() const
+{
+	int ret = 0;
+
+	if (is_key_up)
+		ret = -1;
+	else if (is_key_down)
+		ret = 1;
+
+	return ret;
+}

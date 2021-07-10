@@ -31,6 +31,9 @@ public:
 	bool GetKeyLeft  ()  const  { return is_key_left;  }
 	bool GetKeyRight ()  const  { return is_key_right; }
 	bool GetKeySpace ()  const  { return is_key_space; }
+
+	int  GetHorizontal() const;
+	int  GetVertical  () const;
 };
 
 #endif // !__IN

@@ -15,10 +15,14 @@ class Player
 private:
 
 	// 위치
-	int posX, posY;
+	//int posX, posY;
+
+	Point pos;
 
 	// 이전 속도
-	int oldDirX, oldDirY;
+	//int oldDirX, oldDirY;
+
+	Point oldDir;
 
 	// 크기
 	int size;
@@ -39,14 +43,17 @@ public:
 
 	Player(int _x, int _y, RECT _rect);
 
-	Point GetOldDir() const { return { oldDirX, oldDirY }; }
-	void SetOldDir(int _x, int _y) { oldDirX = _x; oldDirY = _y; }
+	//Point GetOldDir() const { return { oldDirX, oldDirY }; }
+	Point GetOldDir() const { return oldDir; }
+	//void SetOldDir(int _x, int _y) { oldDirX = _x; oldDirY = _y; }
+	void SetOldDir(Point _oldDir) { oldDir = _oldDir; }
 
 	int GetPathSize() const { return (int)(path.size()); }
 
-	Point GetPos() const { return { posX, posY }; }
+	//Point GetPos() const { return { posX, posY }; }
+	Point GetPos() const { return pos; }
 
-	void AddPath(const Point& newP);
+	void AddPath(Point& newP);
 
 	void SetIsSpace(bool _space);
 
@@ -54,8 +61,6 @@ public:
 
 	void MoveWithSpace(int moveX, int moveY, vector<Point> &p);
 	void MoveWithoutSpace(int moveX, int moveY, vector<Point> &p);
-
-	void Move(int moveX, int moveY, vector<Point> &p);
 	void MoveBack();
 };
 
