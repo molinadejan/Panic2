@@ -1,5 +1,25 @@
 #include "MyUtil.h"
 
+Point operator+(Point & p1, Point & p2)
+{
+	return { p1.X + p2.X, p1.Y + p2.Y };
+}
+
+Point operator-(Point & p1, Point & p2)
+{
+	return { p1.X - p2.X, p1.Y - p2.Y };
+}
+
+bool operator==(Point & p1, Point & p2)
+{
+	return (p1.X == p2.X && p1.Y == p2.Y);
+}
+
+bool operator!=(Point & p1, Point & p2)
+{
+	return !(p1.X == p2.X && p1.Y == p2.Y);
+}
+
 bool InRange(const int & x, const int & min, const int & max)
 {
 	if (min > max)
@@ -33,6 +53,8 @@ bool OnPath(const int & x, const int & y, const vector<Point>& p)
 {
 	int size = p.size();
 
+	if (size < 2) return false;
+
 	for (int i = 0; i < size; ++i)
 	{
 		Point cur = p[i];
@@ -43,4 +65,21 @@ bool OnPath(const int & x, const int & y, const vector<Point>& p)
 	}
 
 	return false;
+}
+
+void DrawLine(Graphics * graphic, const Point& p1, const Point& p2)
+{
+	Pen pen(Color(255, 255, 0, 255));
+	graphic->DrawLine(&pen, p1, p2);
+}
+
+// 기울기의 절대값이 1이거나 수직, 수평선만 입력으로 들어온다고 가정합니다.
+Point GetDir(const Point & p)
+{
+	Point ret = p;
+
+	if (ret.X != 0) ret.X /= abs(ret.X);
+	if (ret.Y != 0) ret.Y /= abs(ret.Y);
+
+	return ret;
 }
