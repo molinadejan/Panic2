@@ -41,8 +41,6 @@ void GameManager::Update()
 
 	oldTime = newTime;
 
-	//player->SetIsSpace(input->GetKeySpace());
-
 	int dirX = input->GetHorizontal();
 	int dirY = input->GetVertical();
 	bool space = input->GetKeySpace();
@@ -50,12 +48,7 @@ void GameManager::Update()
 	if (space)
 		player->MoveWithSpace(dirX, dirY, opened);
 	else
-	{
-		if (dirX == 0 && dirY == 0)
-			player->MoveBack();
-		else
-			player->MoveWithoutSpace(dirX, dirY, opened);
-	}
+		player->MoveWithoutSpace(dirX, dirY, opened);
 }
 
 void GameManager::DrawCover(Graphics * graphic)

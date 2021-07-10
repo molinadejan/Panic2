@@ -4,8 +4,10 @@
 #include "Myutil.h"
 
 Player::Player(int _x, int _y, RECT _rect)
-	: pos({ _x, _y }), oldDir({ 0, 0 }), size(8), speed(2), rect({ _rect.left + size / 2, _rect.top + size / 2, _rect.right - size / 2, _rect.bottom - size / 2 })
-{ }
+	: pos({ _x, _y }), oldDir({ 0, 0 }), size(8), speed(4), rect({ _rect.left + size / 2, _rect.top + size / 2, _rect.right - size / 2, _rect.bottom - size / 2 })
+{ 
+	urBtn = ulBtn = drBtn = dlBtn = false;
+}
 
 void Player::AddPath(Point & newP)
 {
@@ -52,88 +54,218 @@ void Player::DrawPlayer(Graphics * graphic)
 
 void Player::MoveWithSpace(int moveX, int moveY, vector<Point>& p)
 {
-	if (moveX == 0 && moveY == 0) return;
+	if (!InRect(pos.X, pos.Y + moveY * speed, rect))
+		moveY = 0;
 
-	for (int i = 0; i < speed; ++i)
-	{
-		Point oldPos = pos;
-		Point newPos = pos;
+	if (!InRect(pos.X + moveX * speed, pos.Y, rect))
+		moveX = 0;
 
-		Point next = pos + Point(moveX, moveY);
+	Point oldPos = pos;
 
-		if (!InRect(pos.X, next.Y, rect))
-			next.Y = pos.Y;
+	if (moveX == 1 && moveY == -1)
+		MoveDiagonal(moveX, moveY, urBtn);
+	else if (moveX == -1 && moveY == -1)
+		MoveDiagonal(moveX, moveY, ulBtn);
+	else if (moveX == 1 && moveY == 1)
+		MoveDiagonal(moveX, moveY, drBtn);
+	else if (moveX == -1 && moveY == 1)
+		MoveDiagonal(moveX, moveY, dlBtn);
+	else if (moveX == 0 && moveY == -1)
+		MoveVertical(moveY);
+	else if (moveX == 0 && moveY == 1)
+		MoveVertical(moveY);
+	else if (moveX == 1 && moveY == 0)
+		MoveHorizontal(moveX);
+	else if (moveX == -1 && moveY == 0)
+		MoveHorizontal(moveX);
 
-		if (!InRect(next.X, pos.Y, rect))
-			next.X = pos.X;
+	// 여기에 도착 지점이 선 위 일때 코드 추가
 
-		if (!OnPath(next, path) && !path.empty() && !OnLine(next, pos, path.back()))
-			newPos = next;
-		else if (!OnPath({ pos.X, next.Y }, path) && !path.empty() && !OnLine({ pos.X, next.Y }, pos, path.back()))
-			newPos.Y = next.Y;
-		else if (!OnPath({ next.X, pos.Y }, path) && !path.empty() && !OnLine({ next.X, pos.Y }, pos, path.back()))
-			newPos.X = next.X;
+	Point newPos = pos;
 
-		if (OnCircuit(newPos, p))
-		{
-			pos = newPos;
-   			return;
-		}
+	Point newDir = newPos - oldPos;
+	Point zero = { 0, 0 };
 
-		Point newDir = GetDir(newPos - oldPos);
+	if (newDir != zero && newDir != oldDir)
+		path.push_back(oldPos);
 
-		Point z = Zero();
-
-		if (GetPathSize() == 0)
-			AddPath(oldPos);
-		else if (newDir != z && newDir != oldDir)
-			AddPath(oldPos);
-
-		if (newDir != z)
-			SetOldDir(newDir);
-
-		pos = newPos;
-	}
+	if (newDir != zero)
+		oldDir = newDir;
 }
 
 void Player::MoveWithoutSpace(int moveX, int moveY, vector<Point>& p)
 {
 	if (path.empty())
 	{
-		for (int i = 0; i < speed; ++i)
-		{
-			Point next = pos + Point(moveX, moveY);
+		Point next = pos + Point(moveX * speed, moveY * speed);
 
-			if (OnCircuit(next, p))
-				pos = next;
-			else if (OnCircuit(pos.X, next.Y, p))
-				pos.Y = next.Y;
-			else if (OnCircuit(next.X, pos.Y, p))
-				pos.X = next.X;
-			else return;
-		}
+		if (OnCircuit(next, p))
+			pos = next;
+		else if (OnCircuit(pos.X, next.Y, p))
+			pos.Y = next.Y;
+		else if (OnCircuit(next.X, pos.Y, p))
+			pos.X = next.X;
+		else return;
 	}
 }
 
 void Player::MoveBack()
 {
-	for (int i = 0; i < speed; ++i)
+	if (path.empty()) return;
+
+	if (pos == path.back())
+		path.pop_back();
+
+	if (path.empty()) return;
+
+	Point backP = path.back();
+
+	Point backDir = GetDir(backP - pos);
+	Point dir = backDir * speed;
+
+	pos = pos + dir;
+	oldDir = -1 * backDir;
+}
+
+void Player::MoveUR(vector<Point>& p)
+{
+	int nextX = pos.X + speed;
+	int nextY = pos.Y - speed;
+
+	if (!OnPath(nextX, nextY, path) && !OnLine(nextX, nextY, path.back(), pos))
 	{
-		if (path.empty()) break;
-
-		Point backP = path.back();
-
-		if (pos == backP)
+		if (urBtn)
 		{
-			path.pop_back();
-			--i;
-			continue;
+			pos.X = nextX;
+			urBtn = false;
 		}
-
-		Point backDir = backP - pos;
-		Point dir = GetDir(backDir);
-
-		pos = pos + dir;
-		oldDir = { -dir.X, -dir.Y };
+		else
+		{
+			pos.Y = nextY;
+			urBtn = true;
+		}
 	}
+	else if (!OnPath(pos.X, nextY, path) && !OnLine(pos.X, nextY, path.back(), pos))
+		pos.Y = nextY;
+	else if (!OnPath(nextX, pos.Y, path) && !OnLine(nextX, pos.Y, path.back(), pos))
+		pos.X = nextX;
+}
+
+void Player::MoveUL(vector<Point>& p)
+{
+	int nextX = pos.X - speed;
+	int nextY = pos.Y - speed;
+
+	if (ulBtn)
+	{
+		pos.X = nextX;
+		ulBtn = false;
+	}
+	else
+	{
+		pos.Y = nextY;
+		ulBtn = true;
+	}
+}
+
+void Player::MoveDR(vector<Point>& p)
+{
+	int nextX = pos.X + speed;
+	int nextY = pos.Y + speed;
+
+	if (drBtn)
+	{
+		pos.X = nextX;
+		drBtn = false;
+	}
+	else
+	{
+		pos.Y = nextY;
+		drBtn = true;
+	}
+}
+
+void Player::MoveDL(vector<Point>& p)
+{
+	int nextX = pos.X - speed;
+	int nextY = pos.Y + speed;
+
+	if (dlBtn)
+	{
+		pos.X = nextX;
+		dlBtn = false;
+	}
+	else
+	{
+		pos.Y = nextY;
+		dlBtn = true;
+	}
+}
+
+void Player::MoveDiagonal(int moveX, int moveY, bool & btn)
+{
+	int nextX = pos.X + speed * moveX;
+	int nextY = pos.Y + speed * moveY;
+
+	if (!OnPath(nextX, nextY, path) && (path.empty() || !OnLine(nextX, nextY, path.back(), pos)))
+	{
+		if (btn)
+		{
+			pos.X = nextX;
+			btn = false;
+		}
+		else
+		{
+			pos.Y = nextY;
+			btn = true;
+		}
+	}
+	else if (!OnPath(pos.X, nextY, path) && (path.empty() || !OnLine(pos.X, nextY, path.back(), pos)))
+		pos.Y = nextY;
+	else if (!OnPath(nextX, pos.Y, path) && (path.empty() || !OnLine(nextX, pos.Y, path.back(), pos)))
+		pos.X = nextX;
+}
+
+void Player::MoveHorizontal(int moveX)
+{
+	int nextX = pos.X + speed * moveX;
+
+	if(!OnPath(nextX, pos.Y, path) && (path.empty() || !OnLine(nextX, pos.Y, path.back(), pos)))
+		pos.X = nextX;
+}
+
+void Player::MoveVertical(int moveY)
+{
+	int nextY = pos.Y + speed * moveY;
+
+	if(!OnPath(pos.X, nextY, path) && (path.empty() || !OnLine(pos.X, nextY, path.back(), pos)))
+		pos.Y = nextY;
+}
+
+void Player::MoveU(vector<Point>& p)
+{
+	int nextY = pos.Y - speed;
+
+	pos.Y = nextY;
+}
+
+void Player::MoveD(vector<Point>& p)
+{
+	int nextY = pos.Y + speed;
+
+	pos.Y = nextY;
+}
+
+void Player::MoveR(vector<Point>& p)
+{
+	int nextX = pos.X + speed;
+
+	pos.X = nextX;
+}
+
+void Player::MoveL(vector<Point>& p)
+{
+	int nextX = pos.X - speed;
+
+	pos.X = nextX;
 }

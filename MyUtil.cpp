@@ -20,6 +20,26 @@ bool operator!=(Point & p1, Point & p2)
 	return !(p1.X == p2.X && p1.Y == p2.Y);
 }
 
+Point operator*(Point & p, int m)
+{
+	Point ret = p;
+
+	ret.X *= m;
+	ret.Y *= m;
+
+	return ret;
+}
+
+Point operator*(int m, Point & p)
+{
+	Point ret = p;
+
+	ret.X *= m;
+	ret.Y *= m;
+
+	return ret;
+}
+
 bool InRange(const int & x, const int & min, const int & max)
 {
 	if (min > max)

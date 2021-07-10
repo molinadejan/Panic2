@@ -11,6 +11,9 @@ Point operator-(Point& p1, Point& p2);
 bool operator==(Point& p1, Point& p2);
 bool operator!=(Point& p1, Point& p2);
 
+Point operator*(Point& p, int m);
+Point operator*(int m, Point& p);
+
 bool InRange(const int &x, const int &min, const int &max);
 
 bool InRect(const int &x, const int &y, const RECT &rect);
