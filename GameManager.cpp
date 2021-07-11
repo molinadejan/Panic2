@@ -47,6 +47,8 @@ void GameManager::Update()
 
 	if (space)
 		player->MoveWithSpace(dirX, dirY, opened);
+	else if (dirX == 0 && dirY == 0)
+		player->MoveBack();
 	else
 		player->MoveWithoutSpace(dirX, dirY, opened);
 }
@@ -66,7 +68,7 @@ void GameManager::DrawOpenedImage(Graphics * graphic)
 
 	GraphicsPath path;
 
-	path.AddPolygon(points, opened.size());
+	path.AddPolygon(points, (int)opened.size());
 	Region region(&path);
 
 	graphic->SetClip(&region);

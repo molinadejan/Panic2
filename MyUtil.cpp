@@ -89,7 +89,7 @@ bool OnLine(const Point & p, const Point & cur, const Point & next)
 
 bool OnCircuit(const int & x, const int & y, const vector<Point>& circuit)
 {
-	int size = circuit.size();
+	int size = (int)circuit.size();
 
 	if (size < 2) return false;
 
@@ -107,7 +107,7 @@ bool OnCircuit(const int & x, const int & y, const vector<Point>& circuit)
 
 bool OnCircuit(const Point & p, const vector<Point>& circuit)
 {
-	int size = circuit.size();
+	int size = (int)circuit.size();
 
 	if (size < 2) return false;
 
@@ -125,7 +125,7 @@ bool OnCircuit(const Point & p, const vector<Point>& circuit)
 
 bool OnPath(const int & x, const int & y, const vector<Point>& path)
 {
-	int size = path.size();
+	int size = (int)path.size();
 
 	if (size < 2) return false;
 
@@ -143,7 +143,7 @@ bool OnPath(const int & x, const int & y, const vector<Point>& path)
 
 bool OnPath(const Point & p, const vector<Point>& path)
 {
-	int size = path.size();
+	int size = (int)path.size();
 
 	if (size < 2) return false;
 
@@ -159,18 +159,42 @@ bool OnPath(const Point & p, const vector<Point>& path)
 	return false;
 }
 
-bool InPolygon(const Point & p, const vector<Point>& polygon)
+bool InPolygon(const Point & p, const vector<Point>& polygon, RECT rect)
 {
-	int size = polygon.size();
+	int size = (int)polygon.size();
 
-	if (size < 3) return false;
+	if (size < 3) 
+		return false;
+
+	// 경로 위인지 확인
+	if (OnCircuit(p, polygon))
+		return true;
+
+	// 점에서 위 방향
+
+	int upCnt = 0;
+	int downCnt = 0;
+	int leftCnt = 0;
+	int rightCnt = 0;
 
 	for (int i = 0; i < size; ++i)
 	{
 		Point cur = polygon[i];
 		Point next = polygon[(i + 1) % size];
 
+		// Y축과 평행
+		if (cur.X == next.X)
+		{
+			if (cur.Y > p.Y && next.Y > p.Y)
+				++upCnt;
+		}
+		// X축과 평행
+		else if (cur.Y == next.Y)
+		{
+			if(InRange(p.X, cur.X, next.X))
+		}
 
+		if(InRange(p.X, cur.X, next.X) && InRange())
 	}
 
 	return false;

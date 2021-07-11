@@ -28,7 +28,7 @@ bool OnCircuit(const Point &p, const vector<Point> &circuit);
 bool OnPath(const int &x, const int &y, const vector<Point> &path);
 bool OnPath(const Point& p, const vector<Point> &path);
 
-bool InPolygon(const Point &p, const vector<Point> &polygon);
+bool InPolygon(const Point &p, const vector<Point> &polygon, RECT rect);
 
 void DrawLine(Graphics *graphic, const Point& p1, const Point& p2);
 

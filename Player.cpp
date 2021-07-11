@@ -38,7 +38,7 @@ void Player::DrawPlayer(Graphics * graphic)
 	SolidBrush brush(Color(255, 255, 0, 0));
 	graphic->FillRectangle(&brush, pos.X - size / 2, pos.Y - size / 2, size, size);
 
-	int pathSize = path.size();
+	int pathSize = (int)path.size();
 
 	Pen pen(Color(255, 100, 200, 150));
 
@@ -79,18 +79,21 @@ void Player::MoveWithSpace(int moveX, int moveY, vector<Point>& p)
 	else if (moveX == -1 && moveY == 0)
 		MoveHorizontal(moveX);
 
-	// 여기에 도착 지점이 선 위 일때 코드 추가
+	if (OnCircuit(pos, p))
+		path.clear();
+	else
+	{
+		Point newPos = pos;
 
-	Point newPos = pos;
+		Point newDir = newPos - oldPos;
+		Point zero = { 0, 0 };
 
-	Point newDir = newPos - oldPos;
-	Point zero = { 0, 0 };
+		if (newDir != zero && newDir != oldDir)
+			path.push_back(oldPos);
 
-	if (newDir != zero && newDir != oldDir)
-		path.push_back(oldPos);
-
-	if (newDir != zero)
-		oldDir = newDir;
+		if (newDir != zero)
+			oldDir = newDir;
+	}
 }
 
 void Player::MoveWithoutSpace(int moveX, int moveY, vector<Point>& p)
