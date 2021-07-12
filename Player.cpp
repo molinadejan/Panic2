@@ -24,7 +24,8 @@ void Player::SetIsSpace(bool _space)
 
 void Player::DrawPlayer(Graphics * graphic)
 {
-	TCHAR tmp[20];
+	// 테스트용
+	/*TCHAR tmp[20];
 	_stprintf(tmp, _T("%d"), (int)path.size());
 
 	FontFamily  fontFamily(L"Times New Roman");
@@ -32,7 +33,7 @@ void Player::DrawPlayer(Graphics * graphic)
 	PointF      pointF(10.0f, 10.0f);
 	SolidBrush  solidBrush(Color(255, 255, 255, 255));
 
-	graphic->DrawString(tmp, -1, &font, pointF, &solidBrush);
+	graphic->DrawString(tmp, -1, &font, pointF, &solidBrush);*/
 
 
 	SolidBrush brush(Color(255, 255, 0, 0));
@@ -42,8 +43,9 @@ void Player::DrawPlayer(Graphics * graphic)
 
 	Pen pen(Color(255, 100, 200, 150));
 
-	for (const Point& p : path)
-		graphic->DrawEllipse(&pen, p.X - 2, p.Y - 2, 4, 4);
+	// 테스트용
+	/*for (const Point& p : path)
+		graphic->DrawEllipse(&pen, p.X - 2, p.Y - 2, 4, 4);*/
 
 	for (int i = 0; i < pathSize - 1; ++i)
 		DrawLine(graphic, path[i], path[i + 1]);
@@ -80,7 +82,25 @@ void Player::MoveWithSpace(int moveX, int moveY, vector<Point>& p)
 		MoveHorizontal(moveX);
 
 	if (OnCircuit(pos, p))
+	{
+		oldDir = { 0, 0 };
+
+		if (path.empty())
+		{
+			path.clear();
+		}
+		else
+		{
+			path.push_back(pos);
+			CombinePolygon(p, path, rect);
+		}
+	}
+	else if (InPolygon(pos, p, rect, false))
+	{
+		oldDir = { 0, 0 };
+		pos = oldPos;
 		path.clear();
+	}
 	else
 	{
 		Point newPos = pos;

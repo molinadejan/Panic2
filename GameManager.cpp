@@ -26,9 +26,9 @@ void GameManager::Init()
 
 	// 초기 열린 영역
 	opened.push_back({ 200, 200 });
-	opened.push_back({ 200, 300 });
-	opened.push_back({ 300, 300 });
 	opened.push_back({ 300, 200 });
+	opened.push_back({ 300, 300 });
+	opened.push_back({ 200, 300 });
 }
 
 void GameManager::Update()
