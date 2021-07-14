@@ -3,28 +3,43 @@
 #include "MyUtil.h"
 
 Enemy::Enemy(int _x, int _y, RECT _rect)
-	: pos({ (REAL)_x, (REAL)_y }), size(16), speed(1), rect({ _rect.left + size / 2, _rect.top + size / 2, _rect.right - size / 2, _rect.bottom - size / 2 })
+	: pos({ (REAL)_x, (REAL)_y }), size(16), rect({ _rect.left + size / 2, _rect.top + size / 2, _rect.right - size / 2, _rect.bottom - size / 2 })
 {
+	speed = rand() % 2 + 1;
 	dir = GetRandomCircle();
 }
 
-void Enemy::Move()
+void Enemy::Move(vector<Point> &p)
 {
-	PointF newPos = pos + dir;
+	//PointF newPos = pos + dir;
+	PointF newPos = { pos.X + dir.X * speed, pos.Y + dir.Y * speed };
 
 	int newPosX = Round(newPos.X);
 	int newPosY = Round(newPos.Y);
 
 	if (!InRange(newPosX, rect.left, rect.right))
 	{
+		newPosX = Round(pos.X);
 		newPos.X = pos.X;
-		dir.X *= -1;
+		dir = GetRandomCircle();
 	}
 
 	if (!InRange(newPosY, rect.top, rect.bottom))
 	{
+		newPosY = Round(pos.Y);
 		newPos.Y = pos.Y;
-		dir.Y *= -1;
+		dir = GetRandomCircle();
+	}
+
+	if (InPolygon({ newPosX, newPosY }, p, true))
+	{
+		newPosX = Round(pos.X);
+		newPos.X = pos.X;
+
+		newPosY = Round(pos.Y);
+		newPos.Y = pos.Y;
+
+		dir = GetRandomCircle();
 	}
 
 	pos = newPos;

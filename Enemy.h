@@ -32,7 +32,7 @@ private:
 public:
 
 	Enemy(int _x, int _y, RECT _rect);
-	void Move();
+	void Move(vector<Point> &p);
 
 	// 적 그리기
 	void DrawEnemy(Graphics *graphic);

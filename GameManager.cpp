@@ -11,6 +11,10 @@ GameManager::GameManager()
 GameManager::~GameManager()
 {
 	delete player;
+
+	for (int i = 0; i < enemies.size(); ++i)
+		delete enemies[i];
+
 	delete input;
 }
 
@@ -38,7 +42,7 @@ void GameManager::Init()
 
 	for (int i = 0; i < 10; ++i)
 	{
-		Enemy* newEnemy = new Enemy(start.X + 20, start.Y + 20, rect);
+		Enemy* newEnemy = new Enemy(start.X + 100, start.Y + 100, rect);
 		enemies.push_back(newEnemy);
 	}
 }
@@ -67,8 +71,9 @@ void GameManager::Update()
 	else // 열린 영역 경로위에서 이동합니다.
 		player->MoveWithoutSpace(dirX, dirY, opened);
 
+	// 적 이동
 	for (Enemy* &enemy : enemies)
-		enemy->Move();
+		enemy->Move(opened);
 }
 
 const int MOVE_AMOUNT = 4;
