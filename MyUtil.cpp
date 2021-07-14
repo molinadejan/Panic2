@@ -86,7 +86,12 @@ int Getdistance(const Point & p1, const Point & p2)
 	if (p1.X == p2.X)
 		return (int)abs(p1.Y - p2.Y);
 
-	return (int)abs(p1.X - p2.X);
+	else if(p1.Y == p2.Y)
+		return (int)abs(p1.X - p2.X);
+
+	double r = sqrt(pow(p1.X - p2.X, 2) + pow(p1.Y - p2.Y, 2));
+	
+	return Round(r);
 }
 
 bool InRange(const int & x, const int & min, const int & max)
@@ -351,4 +356,32 @@ Point Zero()
 {
 	Point ret = { 0, 0 };
 	return ret;
+}
+
+int Round(const double & d)
+{
+	return (int)ceil(d - 0.5f);
+}
+
+void Normalize(PointF & p)
+{
+	float div = sqrt(p.X * p.X + p.Y * p.Y);
+
+	if (div != 0.0f)
+	{
+		p.X /= div;
+		p.Y /= div;
+	}
+}
+
+PointF GetRandomCircle()
+{
+	PointF dir;
+
+	dir.X = float(rand() % 201 - 100) / 100.0f;
+	dir.Y = float(rand() % 201 - 100) / 100.0f;
+
+	Normalize(dir);
+
+	return dir;
 }

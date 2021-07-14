@@ -72,3 +72,10 @@ Point GetDir(const Point& p);
 
 // 0, 0 값을 반환합니다.
 Point Zero();
+
+// 반올림값 반환
+int Round(const double &d);
+
+void Normalize(PointF &p);
+
+PointF GetRandomCircle();
