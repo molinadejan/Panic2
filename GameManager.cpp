@@ -10,7 +10,6 @@ GameManager::GameManager()
 
 GameManager::~GameManager()
 {
-	delete enemy;
 	delete player;
 
 	delete input;
@@ -38,7 +37,11 @@ void GameManager::Init()
 	// 플레이어를 생성합니다, 초기 위치를 설정합니다.
 	player = new Player(start.X, start.Y, rect);
 
-	enemy = new Enemy(start.X + 20, start.Y + 20, rect);
+	for (int i = 0; i < 10; ++i)
+	{
+		Enemy* newEnemy = new Enemy(start.X + 20, start.Y + 20, rect);
+		enemies.push_back(newEnemy);
+	}
 }
 
 void GameManager::Update()
@@ -66,7 +69,8 @@ void GameManager::Update()
 	else // 열린 영역 경로위에서 이동합니다.
 		player->MoveWithoutSpace(dirX, dirY, opened);
 
-	enemy->Move();
+	for (Enemy* &enemy : enemies)
+		enemy->Move();
 }
 
 const int MOVE_AMOUNT = 4;
@@ -132,7 +136,9 @@ void GameManager::DrawGame(Graphics *graphic)
 	DrawClosed(graphic);
 	DrawOpened(graphic);
 	player->DrawPlayer(graphic);
-	enemy->DrawEnemy(graphic);
+
+	for (Enemy* &enemy : enemies)
+		enemy->DrawEnemy(graphic);
 }
 
 // 게임전체를 그립니다. 더블 버퍼링을 사용합니다.

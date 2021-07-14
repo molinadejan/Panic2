@@ -16,10 +16,16 @@ void Enemy::Move()
 	int newPosY = Round(newPos.Y);
 
 	if (!InRange(newPosX, rect.left, rect.right))
+	{
 		newPos.X = pos.X;
+		dir.X *= -1;
+	}
 
 	if (!InRange(newPosY, rect.top, rect.bottom))
+	{
 		newPos.Y = pos.Y;
+		dir.Y *= -1;
+	}
 
 	pos = newPos;
 }

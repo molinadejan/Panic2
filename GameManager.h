@@ -27,8 +27,8 @@ private:
 	// 플레이어
 	Player *player;
 
-	// 적
-	Enemy *enemy;
+	// 적 벡터
+	vector<Enemy*> enemies;
 
 	// 스크린 크기
 	int screenW, screenH;
