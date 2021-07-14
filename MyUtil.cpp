@@ -12,6 +12,19 @@ Point operator-(Point & p1, Point & p2)
 	return { p1.X - p2.X, p1.Y - p2.Y };
 }
 
+Point operator/(Point & p1, const int d)
+{
+	Point ret = p1;
+
+	if (d != 0)
+	{
+		ret.X /= d;
+		ret.Y /= d;
+	}
+
+	return ret;
+}
+
 bool operator==(Point & p1, Point & p2)
 {
 	return (p1.X == p2.X && p1.Y == p2.Y);
@@ -76,6 +89,17 @@ bool InRange(const int & x, const int & min, const int & max)
 		return InRange(x, max, min);
 
 	if(x < min || x > max)
+		return false;
+
+	return true;
+}
+
+bool InRangeClosed(const int & x, const int & min, const int & max)
+{
+	if (min > max)
+		return InRangeClosed(x, max, min);
+
+	if (x < min || x > max - 1)
 		return false;
 
 	return true;
@@ -199,12 +223,9 @@ bool InPolygon(const Point & p, const vector<Point>& polygon, RECT rect, bool ch
 	// 경로 위인지 확인
 	if (checkLine && OnCircuit(p, polygon))
 		return true;
+	else if (!checkLine && OnCircuit(p, polygon))
+		return false;
 
-	// 점에서 위 방향
-
-	int upCnt = 0;
-	int downCnt = 0;
-	int leftCnt = 0;
 	int rightCnt = 0;
 
 	for (int i = 0; i < size; ++i)
@@ -215,33 +236,12 @@ bool InPolygon(const Point & p, const vector<Point>& polygon, RECT rect, bool ch
 		// Y축과 평행
 		if (cur.X == next.X)
 		{
-			if (p.X == cur.X && p.Y < cur.Y && p.Y < next.Y)
-				++upCnt; // 점 위쪽방향 체크
-			else if (p.X == cur.X && p.Y > cur.Y && p.Y > next.Y)
-				++downCnt; // 점 아래쪽 방향 체크
-			else if (InRange(p.Y, cur.Y, next.Y) && p.X < cur.X && p.X < next.X)
+			if (InRangeClosed(p.Y, cur.Y, next.Y) && p.X < cur.X && p.X < next.X)
 				++rightCnt;
-			else if (InRange(p.Y, cur.Y, next.Y) && p.X > cur.X && p.X > next.X)
-				++leftCnt;
-		}
-		// X축과 평행
-		else if (cur.Y == next.Y)
-		{
-			if (InRange(p.X, cur.X, next.X) && p.Y < cur.Y)
-				++upCnt; // 점 위쪽방향 체크
-			else if (InRange(p.X, cur.X, next.X) && p.Y > cur.Y)
-				++downCnt; // 점 아래쪽 방향 체크
-			else if (p.Y == cur.Y && p.X < cur.X && p.X < next.X)
-				++rightCnt;
-			else if (p.Y == cur.Y && p.X > cur.X && p.X > next.X)
-				++leftCnt;
 		}
 	}
 
-	if (upCnt % 2 == 1 && downCnt % 2 == 1 && leftCnt % 2 == 1 && rightCnt % 2 == 1)
-		return true;
-
-	return false;
+	return rightCnt % 2 == 1;
 }
 
 void DrawLine(Graphics * graphic, const Point& p1, const Point& p2)
