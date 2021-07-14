@@ -1,17 +1,17 @@
-#pragma once
+ï»¿#pragma once
 
 #ifndef __INPUTMANAGER_H__
 #define __INPUTMANAGER_H__
 
 #include <wtypes.h> // USE DWORD
 
-// »ç¿ëÀÚÀÇ ÀÔ·ÂÀ» °ü¸®ÇÏ´Â Å¬·¡½ºÀÔ´Ï´Ù.
+// ì‚¬ìš©ìì˜ ì…ë ¥ì„ ê´€ë¦¬í•˜ëŠ” í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
 
 class InputManager
 {
 private:
 
-	// Å°ÀÔ·Â µô·¹ÀÌ ¹æÁö¸¦ À§ÇÑ º¯¼ö
+	// í‚¤ì…ë ¥ ë”œë ˆì´ ë°©ì§€ë¥¼ ìœ„í•œ ë³€ìˆ˜
 	//DWORD oldTime;
 
 	bool is_key_up;
