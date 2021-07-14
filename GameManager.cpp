@@ -11,7 +11,6 @@ GameManager::GameManager()
 GameManager::~GameManager()
 {
 	delete player;
-
 	delete input;
 }
 
@@ -60,7 +59,6 @@ void GameManager::Update()
 	int dirX = input->GetHorizontal();
 	int dirY = input->GetVertical();
 	bool space = input->GetKeySpace();
-
 	
 	if (space)	// 닫힌 영역을 경로를 그리면서 지나갑니다.
 		player->MoveWithSpace(dirX, dirY, opened);
@@ -79,8 +77,8 @@ void GameManager::OpenRandomArea(Point& start)
 {
 	srand((unsigned int)time(NULL));
 
-	int randW = imageW / MOVE_AMOUNT;
-	int randH = imageH / MOVE_AMOUNT;
+	int randW = imageW / MOVE_AMOUNT + 4;
+	int randH = imageH / MOVE_AMOUNT + 4;
 
 	int startX = (rand() % (randW / 2)) * MOVE_AMOUNT;
 	int startY = (rand() % (randH / 2)) * MOVE_AMOUNT;

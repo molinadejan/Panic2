@@ -3,7 +3,7 @@
 #include "MyUtil.h"
 
 Enemy::Enemy(int _x, int _y, RECT _rect)
-	: pos({ (REAL)_x, (REAL)_y }), size(4), speed(1), rect({ _rect.left + size / 2, _rect.top + size / 2, _rect.right - size / 2, _rect.bottom - size / 2 })
+	: pos({ (REAL)_x, (REAL)_y }), size(16), speed(1), rect({ _rect.left + size / 2, _rect.top + size / 2, _rect.right - size / 2, _rect.bottom - size / 2 })
 {
 	dir = GetRandomCircle();
 }
