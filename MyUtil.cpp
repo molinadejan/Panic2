@@ -289,10 +289,10 @@ vector<Point> CreateNewPolygon(const vector<Point>& polygon, const vector<Point>
 	{
 		int next = (beginIdx + 1) % size;
 
-		// front to next : 경로의 시작점에서 다음 점까지의 거리
+		// front to next : 경로의 시작점에서 폴리곤 위 다음 점까지의 거리
 		int fToN = Getdistance(path.front(), polygon[next]);
 
-		// back to next : 경로의 끝점에서 다음 점까지의 거리
+		// back to next : 경로의 끝점에서 폴리곤 위 다음 점까지의 거리
 		int bToN = Getdistance(path.back(), polygon[next]);
 
 		// 끝점이 시작점보다 뒤에 있을 때
