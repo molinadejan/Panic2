@@ -4,7 +4,7 @@
 #include "Myutil.h"
 
 Player::Player(int _x, int _y, RECT _rect)
-	: pos({ _x, _y }), oldDir({ 0, 0 }), size(8), speed(4), rect({ _rect.left + size / 2, _rect.top + size / 2, _rect.right - size / 2, _rect.bottom - size / 2 })
+	: pos({ _x, _y }), oldDir({ 0, 0 }), size(8), speed(2), rect({ _rect.left + size / 2, _rect.top + size / 2, _rect.right - size / 2, _rect.bottom - size / 2 })
 { 
 	urBtn = ulBtn = drBtn = dlBtn = false;
 }
