@@ -8,6 +8,7 @@ using namespace Gdiplus;
 
 Point operator+(Point& p1, Point& p2);
 Point operator-(Point& p1, Point& p2);
+Point operator/(Point& p1, const int d);
 bool operator==(Point& p1, Point& p2);
 bool operator!=(Point& p1, Point& p2);
 
@@ -19,6 +20,7 @@ double GetArea(const vector<Point> &polygon);
 int Getdistance(const Point& p1, const Point& p2);
 
 bool InRange(const int &x, const int &min, const int &max);
+bool InRangeClosed(const int &x, const int &min, const int &max);
 
 bool InRect(const int &x, const int &y, const RECT &rect);
 bool InRect(const Point &p, const RECT &rect);
