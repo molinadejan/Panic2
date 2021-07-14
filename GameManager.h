@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef __GAMEMANAGER_H__
 #define __GAMEMANAGER_H__
@@ -17,35 +17,47 @@ class GameManager
 {
 private:
 
-	// �Է� ����
+	// 입력 관리
 	InputManager* input;
 
-	// ��� �̹���, Ŀ��
+	// 배경 이미지
 	Image *image;
 
-	// �÷��̾�
+	// 플레이어
 	Player *player;
 
-	// ��ũ�� ũ��
+	// 스크린 크기
 	int screenW, screenH;
 
-	// ��� �̹��� ũ��
+	// 배경 이미지 크기
 	int imageW, imageH;
 
+	// 열린 공간 벡터
 	vector<Point> opened;
 
-	void DrawCover(Graphics *graphic);
-	void DrawOpenedImage(Graphics *graphic);
+	// 닫힌 공간 그리기
+	void DrawClosed(Graphics *graphic);
+
+	// 열린 공간 그리기
+	void DrawOpened(Graphics *graphic);
+
+	// 게임 화면 그리기
 	void DrawGame(Graphics *graphic);
 
 public:
 	GameManager();
 	~GameManager();
 
+	// 입력 객체 반환
 	InputManager* Input() const { return input; }
 
+	// 초기화
 	void Init();
+
+	// 업데이트
 	void Update();
+
+	// 그리기
 	void Draw(HWND hWnd, HDC hdc);
 };
 

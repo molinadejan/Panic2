@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 
 #include "Player.h"
 #include "Myutil.h"
@@ -9,22 +9,9 @@ Player::Player(int _x, int _y, RECT _rect)
 	urBtn = ulBtn = drBtn = dlBtn = false;
 }
 
-void Player::AddPath(Point & newP)
-{
-	if (!path.empty() && path.back() == newP)
-		return;
-
-	path.push_back(newP);
-}
-
-void Player::SetIsSpace(bool _space)
-{
-	isSpace = _space;
-}
-
 void Player::DrawPlayer(Graphics * graphic)
 {
-	// �׽�Ʈ��
+	// 테스트용 : 플레이어 경로의 점 개수 출력
 	/*TCHAR tmp[20];
 	_stprintf(tmp, _T("%d"), (int)path.size());
 
@@ -43,19 +30,22 @@ void Player::DrawPlayer(Graphics * graphic)
 
 	Pen pen(Color(255, 100, 200, 150));
 
-	// �׽�Ʈ��
+	// 테스트용 : 플레이어 경로의 점마다 원 그리기
 	/*for (const Point& p : path)
 		graphic->DrawEllipse(&pen, p.X - 2, p.Y - 2, 4, 4);*/
 
+	// 플레이어가 지나온 경로 그리기
 	for (int i = 0; i < pathSize - 1; ++i)
 		DrawLine(graphic, path[i], path[i + 1]);
 
+	// 마지막 지점과 플레이어 사이의 선분
 	if (pathSize > 0)
 		DrawLine(graphic, path[path.size() - 1], pos);
 }
 
 void Player::MoveWithSpace(int moveX, int moveY, vector<Point>& p)
 {
+	// 범위에 벗어나는 경우 이동 불가
 	if (!InRect(pos.X, pos.Y + moveY * speed, rect))
 		moveY = 0;
 
@@ -81,16 +71,20 @@ void Player::MoveWithSpace(int moveX, int moveY, vector<Point>& p)
 	else if (moveX == -1 && moveY == 0)
 		MoveHorizontal(moveX);
 
-	// �߰��� ���� ������ ������������ �ֱ� ������ ��� ������ Ȯ��
+	// 중간에 열린 영역이 끼어있을수도 있기 때문에 가운데 영역도 확인
 	Point m = {(pos.X + oldPos.X) / 2, (pos.Y + oldPos.Y) / 2};
 
-	if (InPolygon(pos, p, rect, false) || InPolygon(m, p, rect, false))
+	// 열린 영역 안에있는지 확인, 가장자리는 체크 안함
+	if (InPolygon(pos, p, false) || InPolygon(m, p, false))
 	{
 		oldDir = { 0, 0 };
 		pos = oldPos;
 		path.clear();
 		return;
 	}
+
+	// 경로 점 추가를 위해 방향을 비교하고, 갱신한다.
+	// 이전 진행방향과 다음 진행방향이 다르면 새로운 점을 경로에 추가한다
 
 	Point newPos = pos;
 
@@ -103,6 +97,7 @@ void Player::MoveWithSpace(int moveX, int moveY, vector<Point>& p)
 	if (newDir != zero)
 		oldDir = newDir;
 
+	// 도착지점이 열린공간의 가장자리일 경우
 	if (OnCircuit(pos, p))
 	{
 		oldDir = { 0, 0 };
@@ -114,7 +109,7 @@ void Player::MoveWithSpace(int moveX, int moveY, vector<Point>& p)
 		else
 		{
 			path.push_back(pos);
-			CombinePolygon(p, path, rect);
+			CombinePolygon(p, path);
 		}
 	}
 }
@@ -131,7 +126,7 @@ void Player::MoveWithoutSpace(int moveX, int moveY, vector<Point>& p)
 		{
 			Point m = { pos.X, (pos.Y + next.Y) / 2 };
 
-			if (!InPolygon(m, p, rect, false) && OnCircuit(m, p))
+			if (!InPolygon(m, p, false) && OnCircuit(m, p))
 			{
 				checkMove = true;
 				pos.Y = next.Y;
@@ -142,7 +137,7 @@ void Player::MoveWithoutSpace(int moveX, int moveY, vector<Point>& p)
 		{
 			Point m = { (pos.X + next.X) / 2, pos.Y };
 
-			if (!InPolygon(m, p, rect, false) && OnCircuit(m, p))
+			if (!InPolygon(m, p, false) && OnCircuit(m, p))
 				pos.X = next.X;
 		}
 	}
@@ -191,24 +186,6 @@ void Player::MoveDiagonal(int moveX, int moveY, bool & btn)
 
 		btn = true;
 	}
-
-	/*if (!OnPath(nextX, nextY, path) && (path.empty() || !OnLine(nextX, nextY, path.back(), pos)))
-	{
-		if (btn)
-		{
-			pos.X = nextX;
-			btn = false;
-		}
-		else
-		{
-			pos.Y = nextY;
-			btn = true;
-		}
-	}
-	else if (!OnPath(pos.X, nextY, path) && (path.empty() || !OnLine(pos.X, nextY, path.back(), pos)))
-		pos.Y = nextY;
-	else if (!OnPath(nextX, pos.Y, path) && (path.empty() || !OnLine(nextX, pos.Y, path.back(), pos)))
-		pos.X = nextX;*/
 }
 
 void Player::MoveHorizontal(int moveX)

@@ -1,4 +1,4 @@
-#include "MyUtil.h"
+﻿#include "MyUtil.h"
 
 #include <algorithm>
 
@@ -55,10 +55,17 @@ Point operator*(int m, Point & p)
 	return ret;
 }
 
+//   -->    -->
+// | AB  X  AC |
+// 을 반환합니다.
+
 int ccw(const Point & pa, const Point & pb, const Point & pc)
 {
 	return (pa.X * pb.Y + pb.X * pc.Y + pc.X * pa.Y) - (pb.X * pa.Y + pa.X * pc.Y + pc.X * pb.Y);
 }
+
+// 참고
+// https://ip99202.github.io/posts/%EB%B0%B1%EC%A4%80-2166-%EB%8B%A4%EA%B0%81%ED%98%95%EC%9D%98-%EB%A9%B4%EC%A0%81/
 
 double GetArea(const vector<Point>& polygon)
 {
@@ -74,7 +81,6 @@ double GetArea(const vector<Point>& polygon)
 	return sum / 2;
 }
 
-// �밢���� ���� X
 int Getdistance(const Point & p1, const Point & p2)
 {
 	if (p1.X == p2.X)
@@ -141,6 +147,7 @@ bool OnLine(const Point & p, const Point & cur, const Point & next)
 	return (abs(p.X - cur.X) == abs(p.Y - cur.Y)) && InRange(p.X, cur.X, next.X) && InRange(p.Y, cur.Y, next.Y);
 }
 
+// 회로이기 때문에 처음 점과 마지막 점도 확인합니다.
 bool OnCircuit(const int & x, const int & y, const vector<Point>& circuit)
 {
 	int size = (int)circuit.size();
@@ -177,6 +184,7 @@ bool OnCircuit(const Point & p, const vector<Point>& circuit)
 	return false;
 }
 
+// 경로이기 때문에 처음점과 마지막 점은 확인하지 않습니다.
 bool OnPath(const int & x, const int & y, const vector<Point>& path)
 {
 	int size = (int)path.size();
@@ -213,14 +221,16 @@ bool OnPath(const Point & p, const vector<Point>& path)
 	return false;
 }
 
-bool InPolygon(const Point & p, const vector<Point>& polygon, RECT rect, bool checkLine)
+// 참고
+// https://3001ssw.tistory.com/124
+bool InPolygon(const Point & p, const vector<Point>& polygon, bool checkLine)
 {
 	int size = (int)polygon.size();
 
 	if (size < 3) 
 		return false;
 
-	// ��� ������ Ȯ��
+	// 경로 위인지 확인
 	if (checkLine && OnCircuit(p, polygon))
 		return true;
 	else if (!checkLine && OnCircuit(p, polygon))
@@ -233,7 +243,7 @@ bool InPolygon(const Point & p, const vector<Point>& polygon, RECT rect, bool ch
 		Point cur = polygon[i];
 		Point next = polygon[(i + 1) % size];
 
-		// Y��� ����
+		// Y축과 평행한 선분만 확인한다
 		if (cur.X == next.X)
 		{
 			if (InRangeClosed(p.Y, cur.Y, next.Y) && p.X < cur.X && p.X < next.X)
@@ -250,15 +260,18 @@ void DrawLine(Graphics * graphic, const Point& p1, const Point& p2)
 	graphic->DrawLine(&pen, p1, p2);
 }
 
+// 주어진 입력값으로 새로운 폴리곤을 만듭니다.
 vector<Point> CreateNewPolygon(const vector<Point>& polygon, const vector<Point>& path)
 {
 	vector<Point> newPolygon;
 
+	// 일단 플레이어가 지나온 경로부터 삽입
 	newPolygon.insert(newPolygon.end(), path.begin(), path.end());
 
 	int beginIdx = -1, endIdx = -1;
 	int size = polygon.size();
 
+	// 경로의 시작과 끝이 각각 폴리곤의 어느 변과 만나는지 구합니다.
 	for (int i = 0; i < size; ++i)
 	{
 		Point cur = polygon[i];
@@ -271,16 +284,23 @@ vector<Point> CreateNewPolygon(const vector<Point>& polygon, const vector<Point>
 			endIdx = i;
 	}
 
+	// 경로의 시작과 끝이 같은 변 위에 있을 때 처리
 	if (beginIdx == endIdx)
 	{
 		int next = (beginIdx + 1) % size;
+
+		// front to next : 경로의 시작점에서 다음 점까지의 거리
 		int fToN = Getdistance(path.front(), polygon[next]);
+
+		// back to next : 경로의 끝점에서 다음 점까지의 거리
 		int bToN = Getdistance(path.back(), polygon[next]);
 
+		// 끝점이 시작점보다 뒤에 있을 때
 		if (bToN > fToN)
 			return newPolygon;
 	}
 
+	// 경로의 시작부터 끝까지 순회하며 새로운 폴리곤을 구성합니다.
 	int i = endIdx + 1;
 
 	while (true)
@@ -299,8 +319,11 @@ vector<Point> CreateNewPolygon(const vector<Point>& polygon, const vector<Point>
 	return newPolygon;
 }
 
-void CombinePolygon(vector<Point>& polygon, vector<Point>& path, RECT rect)
+void CombinePolygon(vector<Point>& polygon, vector<Point>& path)
 {
+	// 원래 경로와 뒤집힌 경로로부터 만들어진 폴리곤들의 넓이를 비교하여
+	// 더 큰영역을 선택합니다.
+
 	vector<Point> combined1 = CreateNewPolygon(polygon, path);
 	
 	std::reverse(path.begin(), path.end());
@@ -314,7 +337,6 @@ void CombinePolygon(vector<Point>& polygon, vector<Point>& path, RECT rect)
 	path.clear();
 }
 
-// ������ ���밪�� 1�̰ų� ����, ���򼱸� �Է����� ���´ٰ� �����մϴ�.
 Point GetDir(const Point & p)
 {
 	Point ret = p;
