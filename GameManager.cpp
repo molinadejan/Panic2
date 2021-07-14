@@ -2,12 +2,17 @@
 
 #include "MyUtil.h"
 
+#include <ctime>
+
 GameManager::GameManager()
 	:input(new InputManager())
 { }
 
 GameManager::~GameManager()
 {
+	delete enemy;
+	delete player;
+
 	delete input;
 }
 
@@ -27,15 +32,13 @@ void GameManager::Init()
 	// 이미지 파일의 영역을 설정합니다.
 	RECT rect = { 0, 0, imageW, imageH };
 
-	// 플레이어를 생성합니다, 초기 위치를 설정합니다.
-	player = new Player(200, 200, rect);
+	Point start;
+	OpenRandomArea(start);
 
-	// 초기 열린 영역을 설정합니다.
-	// 시계방향으로 저장합니다.
-	opened.push_back({ 200, 200 });
-	opened.push_back({ 300, 200 });
-	opened.push_back({ 300, 300 });
-	opened.push_back({ 200, 300 });
+	// 플레이어를 생성합니다, 초기 위치를 설정합니다.
+	player = new Player(start.X, start.Y, rect);
+
+	enemy = new Enemy(start.X + 20, start.Y + 20, rect);
 }
 
 void GameManager::Update()
@@ -62,6 +65,33 @@ void GameManager::Update()
 		player->MoveBack();
 	else // 열린 영역 경로위에서 이동합니다.
 		player->MoveWithoutSpace(dirX, dirY, opened);
+
+	enemy->Move();
+}
+
+const int MOVE_AMOUNT = 4;
+
+void GameManager::OpenRandomArea(Point& start)
+{
+	srand((unsigned int)time(NULL));
+
+	int randW = imageW / MOVE_AMOUNT;
+	int randH = imageH / MOVE_AMOUNT;
+
+	int startX = (rand() % (randW / 2)) * MOVE_AMOUNT;
+	int startY = (rand() % (randH / 2)) * MOVE_AMOUNT;
+
+	int endX = startX + (rand() % (randW / 4)) * MOVE_AMOUNT + MOVE_AMOUNT;
+	int endY = startY + (rand() % (randH / 4)) * MOVE_AMOUNT + MOVE_AMOUNT;
+
+	start = {startX, startY};
+
+	// 초기 열린 영역을 설정합니다.
+	// 시계방향으로 저장합니다.
+	opened.push_back({ startX, startY });
+	opened.push_back({ endX, startY});
+	opened.push_back({ endX, endY });
+	opened.push_back({ startX, endY });
 }
 
 // 닫힌 영역을 그립니다.
@@ -102,6 +132,7 @@ void GameManager::DrawGame(Graphics *graphic)
 	DrawClosed(graphic);
 	DrawOpened(graphic);
 	player->DrawPlayer(graphic);
+	enemy->DrawEnemy(graphic);
 }
 
 // 게임전체를 그립니다. 더블 버퍼링을 사용합니다.

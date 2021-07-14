@@ -7,6 +7,7 @@
 
 #include "InputManager.h"
 #include "Player.h"
+#include "Enemy.h"
 
 #include <vector>
 
@@ -26,6 +27,9 @@ private:
 	// 플레이어
 	Player *player;
 
+	// 적
+	Enemy *enemy;
+
 	// 스크린 크기
 	int screenW, screenH;
 
@@ -34,6 +38,9 @@ private:
 
 	// 열린 공간 벡터
 	vector<Point> opened;
+
+	// 시작을 위한 랜덤 영역 생성
+	void OpenRandomArea(Point& start);
 
 	// 닫힌 공간 그리기
 	void DrawClosed(Graphics *graphic);
