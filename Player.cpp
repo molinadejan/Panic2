@@ -81,6 +81,28 @@ void Player::MoveWithSpace(int moveX, int moveY, vector<Point>& p)
 	else if (moveX == -1 && moveY == 0)
 		MoveHorizontal(moveX);
 
+	// 중간에 열린 영역이 끼어있을수도 있기 때문에 가운데 영역도 확인
+	Point m = {(pos.X + oldPos.X) / 2, (pos.Y + oldPos.Y) / 2};
+
+	if (InPolygon(pos, p, rect, false) || InPolygon(m, p, rect, false))
+	{
+		oldDir = { 0, 0 };
+		pos = oldPos;
+		path.clear();
+		return;
+	}
+
+	Point newPos = pos;
+
+	Point newDir = newPos - oldPos;
+	Point zero = { 0, 0 };
+
+	if (newDir != zero && newDir != oldDir)
+		path.push_back(oldPos);
+
+	if (newDir != zero)
+		oldDir = newDir;
+
 	if (OnCircuit(pos, p))
 	{
 		oldDir = { 0, 0 };
@@ -95,25 +117,6 @@ void Player::MoveWithSpace(int moveX, int moveY, vector<Point>& p)
 			CombinePolygon(p, path, rect);
 		}
 	}
-	else if (InPolygon(pos, p, rect, false))
-	{
-		oldDir = { 0, 0 };
-		pos = oldPos;
-		path.clear();
-	}
-	else
-	{
-		Point newPos = pos;
-
-		Point newDir = newPos - oldPos;
-		Point zero = { 0, 0 };
-
-		if (newDir != zero && newDir != oldDir)
-			path.push_back(oldPos);
-
-		if (newDir != zero)
-			oldDir = newDir;
-	}
 }
 
 void Player::MoveWithoutSpace(int moveX, int moveY, vector<Point>& p)
@@ -122,13 +125,26 @@ void Player::MoveWithoutSpace(int moveX, int moveY, vector<Point>& p)
 	{
 		Point next = pos + Point(moveX * speed, moveY * speed);
 
-		if (OnCircuit(next, p))
-			pos = next;
-		else if (OnCircuit(pos.X, next.Y, p))
-			pos.Y = next.Y;
-		else if (OnCircuit(next.X, pos.Y, p))
-			pos.X = next.X;
-		else return;
+		bool checkMove = false;
+
+		if (moveY != 0 && OnCircuit(pos.X, next.Y, p))
+		{
+			Point m = { pos.X, (pos.Y + next.Y) / 2 };
+
+			if (!InPolygon(m, p, rect, false) && OnCircuit(m, p))
+			{
+				checkMove = true;
+				pos.Y = next.Y;
+			}
+		}
+		
+		if (!checkMove && moveX != 0 && OnCircuit(next.X, pos.Y, p))
+		{
+			Point m = { (pos.X + next.X) / 2, pos.Y };
+
+			if (!InPolygon(m, p, rect, false) && OnCircuit(m, p))
+				pos.X = next.X;
+		}
 	}
 }
 
@@ -150,87 +166,33 @@ void Player::MoveBack()
 	oldDir = -1 * backDir;
 }
 
-void Player::MoveUR(vector<Point>& p)
-{
-	int nextX = pos.X + speed;
-	int nextY = pos.Y - speed;
-
-	if (!OnPath(nextX, nextY, path) && !OnLine(nextX, nextY, path.back(), pos))
-	{
-		if (urBtn)
-		{
-			pos.X = nextX;
-			urBtn = false;
-		}
-		else
-		{
-			pos.Y = nextY;
-			urBtn = true;
-		}
-	}
-	else if (!OnPath(pos.X, nextY, path) && !OnLine(pos.X, nextY, path.back(), pos))
-		pos.Y = nextY;
-	else if (!OnPath(nextX, pos.Y, path) && !OnLine(nextX, pos.Y, path.back(), pos))
-		pos.X = nextX;
-}
-
-void Player::MoveUL(vector<Point>& p)
-{
-	int nextX = pos.X - speed;
-	int nextY = pos.Y - speed;
-
-	if (ulBtn)
-	{
-		pos.X = nextX;
-		ulBtn = false;
-	}
-	else
-	{
-		pos.Y = nextY;
-		ulBtn = true;
-	}
-}
-
-void Player::MoveDR(vector<Point>& p)
-{
-	int nextX = pos.X + speed;
-	int nextY = pos.Y + speed;
-
-	if (drBtn)
-	{
-		pos.X = nextX;
-		drBtn = false;
-	}
-	else
-	{
-		pos.Y = nextY;
-		drBtn = true;
-	}
-}
-
-void Player::MoveDL(vector<Point>& p)
-{
-	int nextX = pos.X - speed;
-	int nextY = pos.Y + speed;
-
-	if (dlBtn)
-	{
-		pos.X = nextX;
-		dlBtn = false;
-	}
-	else
-	{
-		pos.Y = nextY;
-		dlBtn = true;
-	}
-}
-
 void Player::MoveDiagonal(int moveX, int moveY, bool & btn)
 {
 	int nextX = pos.X + speed * moveX;
 	int nextY = pos.Y + speed * moveY;
 
-	if (!OnPath(nextX, nextY, path) && (path.empty() || !OnLine(nextX, nextY, path.back(), pos)))
+	if (btn)
+	{
+		if (!OnPath(nextX, pos.Y, path) && (path.empty() || !OnLine(nextX, pos.Y, path.back(), pos)))
+			pos.X = nextX;
+		else if (!OnPath(pos.X, nextY, path) && (path.empty() || !OnLine(pos.X, nextY, path.back(), pos)))
+			pos.Y = nextY;
+		else return;
+
+		btn = false;
+	}
+	else
+	{
+		if (!OnPath(pos.X, nextY, path) && (path.empty() || !OnLine(pos.X, nextY, path.back(), pos)))
+			pos.Y = nextY;
+		else if (!OnPath(nextX, pos.Y, path) && (path.empty() || !OnLine(nextX, pos.Y, path.back(), pos)))
+			pos.X = nextX;
+		else return;
+
+		btn = true;
+	}
+
+	/*if (!OnPath(nextX, nextY, path) && (path.empty() || !OnLine(nextX, nextY, path.back(), pos)))
 	{
 		if (btn)
 		{
@@ -246,7 +208,7 @@ void Player::MoveDiagonal(int moveX, int moveY, bool & btn)
 	else if (!OnPath(pos.X, nextY, path) && (path.empty() || !OnLine(pos.X, nextY, path.back(), pos)))
 		pos.Y = nextY;
 	else if (!OnPath(nextX, pos.Y, path) && (path.empty() || !OnLine(nextX, pos.Y, path.back(), pos)))
-		pos.X = nextX;
+		pos.X = nextX;*/
 }
 
 void Player::MoveHorizontal(int moveX)
@@ -263,32 +225,4 @@ void Player::MoveVertical(int moveY)
 
 	if(!OnPath(pos.X, nextY, path) && (path.empty() || !OnLine(pos.X, nextY, path.back(), pos)))
 		pos.Y = nextY;
-}
-
-void Player::MoveU(vector<Point>& p)
-{
-	int nextY = pos.Y - speed;
-
-	pos.Y = nextY;
-}
-
-void Player::MoveD(vector<Point>& p)
-{
-	int nextY = pos.Y + speed;
-
-	pos.Y = nextY;
-}
-
-void Player::MoveR(vector<Point>& p)
-{
-	int nextX = pos.X + speed;
-
-	pos.X = nextX;
-}
-
-void Player::MoveL(vector<Point>& p)
-{
-	int nextX = pos.X - speed;
-
-	pos.X = nextX;
 }

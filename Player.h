@@ -61,19 +61,9 @@ public:
 	void MoveWithoutSpace(int moveX, int moveY, vector<Point> &p);
 	void MoveBack();
 
-	void MoveUR(vector<Point> &p);
-	void MoveUL(vector<Point> &p);
-	void MoveDR(vector<Point> &p);
-	void MoveDL(vector<Point> &p);
-
 	void MoveDiagonal(int moveX, int moveY, bool &btn);
 	void MoveHorizontal(int moveX);
 	void MoveVertical(int moveY);
-
-	void MoveU(vector<Point> &p);
-	void MoveD(vector<Point> &p);
-	void MoveR(vector<Point> &p);
-	void MoveL(vector<Point> &p);
 };
 
 #endif // !__PLAYER_H__
