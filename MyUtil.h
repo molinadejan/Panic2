@@ -32,7 +32,10 @@ int ccw(const Point& pa, const Point& pb, const Point& pc);
 double GetArea(const vector<Point> &polygon);
 
 // 두 점 사이의 거리를 구합니다.
-int Getdistance(const Point& p1, const Point& p2);
+double GetDistance(const Point& p1, const Point& p2);
+
+// 한 점과 직선사이의 거리를 구합니다.
+double GetDistance(const Point& p, const Point& l1, const Point& l2);
 
 // 두 값 사이에 x가 있는지 확인합니다.
 bool InRange(const int &x, const int &min, const int &max);

@@ -81,17 +81,26 @@ double GetArea(const vector<Point>& polygon)
 	return sum / 2;
 }
 
-int Getdistance(const Point & p1, const Point & p2)
+double GetDistance(const Point & p1, const Point & p2)
 {
 	if (p1.X == p2.X)
-		return (int)abs(p1.Y - p2.Y);
+		return abs(p1.Y - p2.Y);
 
 	else if(p1.Y == p2.Y)
-		return (int)abs(p1.X - p2.X);
+		return abs(p1.X - p2.X);
 
 	double r = sqrt(pow(p1.X - p2.X, 2) + pow(p1.Y - p2.Y, 2));
 	
-	return Round(r);
+	return r;
+}
+
+double GetDistance(const Point & p, const Point & l1, const Point & l2)
+{
+	int dis = GetDistance(l1, l2);
+
+	int m = (l2.X - l1.X) * (l1.Y - p.Y) - (l1.X - p.X) * (l2.Y - l1.Y);
+
+	return m / (double)dis;
 }
 
 bool InRange(const int & x, const int & min, const int & max)
@@ -295,10 +304,10 @@ vector<Point> CreateNewPolygon(const vector<Point>& polygon, const vector<Point>
 		int next = (beginIdx + 1) % size;
 
 		// front to next : 경로의 시작점에서 폴리곤 위 다음 점까지의 거리
-		int fToN = Getdistance(path.front(), polygon[next]);
+		int fToN = GetDistance(path.front(), polygon[next]);
 
 		// back to next : 경로의 끝점에서 폴리곤 위 다음 점까지의 거리
-		int bToN = Getdistance(path.back(), polygon[next]);
+		int bToN = GetDistance(path.back(), polygon[next]);
 
 		// 끝점이 시작점보다 뒤에 있을 때
 		if (bToN > fToN)
