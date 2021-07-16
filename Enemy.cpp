@@ -11,7 +11,6 @@ Enemy::Enemy(int _x, int _y, RECT _rect)
 
 void Enemy::Move(vector<Point> &p)
 {
-	//PointF newPos = pos + dir;
 	PointF newPos = { pos.X + dir.X * speed, pos.Y + dir.Y * speed };
 
 	int newPosX = Round(newPos.X);

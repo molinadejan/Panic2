@@ -34,6 +34,8 @@ public:
 	Enemy(int _x, int _y, RECT _rect);
 	void Move(vector<Point> &p);
 
+	PointF GetPos() const { return pos; }
+
 	// 적 그리기
 	void DrawEnemy(Graphics *graphic);
 };
