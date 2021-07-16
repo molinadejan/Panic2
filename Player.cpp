@@ -30,10 +30,6 @@ void Player::DrawPlayer(Graphics * graphic)
 
 	Pen pen(Color(255, 100, 200, 150));
 
-	// 테스트용 : 플레이어 경로의 점마다 원 그리기
-	/*for (const Point& p : path)
-		graphic->DrawEllipse(&pen, p.X - 2, p.Y - 2, 4, 4);*/
-
 	// 플레이어가 지나온 경로 그리기
 	for (int i = 0; i < pathSize - 1; ++i)
 		DrawLine(graphic, path[i], path[i + 1]);
@@ -202,4 +198,67 @@ void Player::MoveVertical(int moveY)
 
 	if(!OnPath(pos.X, nextY, path) && (path.empty() || !OnLine(pos.X, nextY, path.back(), pos)))
 		pos.Y = nextY;
+}
+
+void Player::CheckPlayerDie(Point ePos, int eSize)
+{
+	if (path.empty()) return;
+
+	int size = path.size();
+
+	for (int i = 0; i < size - 1; ++i)
+	{
+		if (path[i].X == path[i + 1].X)
+		{
+			if (InRange(ePos.Y, path[i].Y, path[i + 1].Y) && InRange(ePos.X, path[i].X - eSize, path[i].X + eSize))
+			{
+				PlayerDie();
+				return;
+			}
+		}
+		else if (path[i].Y == path[i + 1].Y)
+		{
+			if (InRange(ePos.X, path[i].X, path[i + 1].X) && InRange(ePos.Y, path[i].Y - eSize, path[i].Y + eSize))
+			{
+				PlayerDie();
+				return;
+			}
+		}
+
+		if (GetDistance(ePos, path[i]) <= eSize || GetDistance(ePos, path[i + 1]) <= eSize)
+		{
+			PlayerDie();
+			return;
+		}
+	}
+
+	if (path.back().X == pos.X)
+	{
+		if (InRange(ePos.Y, path.back().Y, pos.Y) && InRange(ePos.X, path.back().X - eSize, path.back().X + eSize))
+		{
+			PlayerDie();
+			return;
+		}
+	}
+	else if (path.back().Y == pos.Y)
+	{
+		if (InRange(ePos.X, path.back().X, pos.X) && InRange(ePos.Y, path.back().Y - eSize, path.back().Y + eSize))
+		{
+			PlayerDie();
+			return;
+		}
+	}
+
+	if (GetDistance(ePos, path.back()) <= eSize || GetDistance(ePos, path.back()) <= eSize)
+	{
+		PlayerDie();
+		return;
+	}
+}
+
+void Player::PlayerDie()
+{
+	pos = path.front();
+	path.clear();
+	oldDir = { 0, 0 };
 }

@@ -66,6 +66,12 @@ public:
 
 	// 수직 이동
 	void MoveVertical(int moveY);
+
+	// 플레이어 죽음 체크
+	void CheckPlayerDie(Point pos, int eSize);
+
+	// 플레이어 죽음
+	void PlayerDie();
 };
 
 #endif // !__PLAYER_H__
