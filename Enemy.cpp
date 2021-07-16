@@ -13,29 +13,37 @@ void Enemy::Move(vector<Point> &p)
 {
 	PointF newPos = { pos.X + dir.X * speed, pos.Y + dir.Y * speed };
 
-	int newPosX = Round(newPos.X);
-	int newPosY = Round(newPos.Y);
-
-	if (!InRange(newPosX, rect.left, rect.right))
+	if (newPos.X < size / 2)
 	{
-		newPosX = Round(pos.X);
-		newPos.X = pos.X;
-		dir = GetRandomCircle();
+		newPos.X = size / 2;
+		dir.X *= -1;
 	}
 
-	if (!InRange(newPosY, rect.top, rect.bottom))
+	if (newPos.X > rect.right - size / 2)
 	{
-		newPosY = Round(pos.Y);
-		newPos.Y = pos.Y;
-		dir = GetRandomCircle();
+		newPos.X = rect.right - size / 2;
+		dir.X *= -1;
 	}
 
-	if (InPolygon({ newPosX, newPosY }, p, true))
+	if (newPos.Y < size / 2)
 	{
-		newPosX = Round(pos.X);
-		newPos.X = pos.X;
+		newPos.Y = size / 2;
+		dir.Y *= -1;
+	}
 
-		newPosY = Round(pos.Y);
+	if (newPos.Y > rect.bottom - size / 2)
+	{
+		newPos.Y = rect.bottom - size / 2;
+		dir.Y *= -1;
+	}
+
+	int pSize = p.size();
+
+	Point _newPos = { Round(newPos.X), Round(newPos.Y) };
+
+	if (InPolygon(_newPos, p, true))
+	{
+		newPos.X = pos.X;
 		newPos.Y = pos.Y;
 
 		dir = GetRandomCircle();

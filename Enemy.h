@@ -36,6 +36,8 @@ public:
 
 	PointF GetPos() const { return pos; }
 
+	int GetSize() const { return size; }
+
 	// 적 그리기
 	void DrawEnemy(Graphics *graphic);
 };
