@@ -71,6 +71,16 @@ void GameManager::Update()
 	else // 열린 영역 경로위에서 이동합니다.
 		player->MoveWithoutSpace(dirX, dirY, opened);
 
+	// 플레이어의 이동경로에 적이 충돌했는지 확인
+	for (Enemy* &enemy : enemies)
+	{
+		PointF _pos = enemy->GetPos();
+		Point pos = { Round(_pos.X), Round(_pos.Y) };
+		int eSize = enemy->GetSize();
+
+		player->CheckPlayerDie(pos, eSize);
+	}
+
 	// 적들이 열린영역 안에 있으면 삭제
 	for (int i = 0; i < enemies.size(); ++i)
 	{
